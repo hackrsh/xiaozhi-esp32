@@ -14,10 +14,7 @@
 #include <driver/i2c_master.h>
 #include <esp_lcd_panel_ops.h>
 #include <esp_lcd_panel_vendor.h>
-
-#ifdef SH1106
 #include <esp_lcd_panel_sh1106.h>
-#endif
 
 #define TAG "CompactWifiBoard"
 
@@ -49,7 +46,6 @@ private:
     }
 
     void InitializeSsd1306Display() {
-        // SSD1306 config
         esp_lcd_panel_io_i2c_config_t io_config = {
             .dev_addr = 0x3C,
             .scl_speed_hz = 100 * 1000,
@@ -67,22 +63,13 @@ private:
 
         ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(display_i2c_bus_, &io_config, &panel_io_));
 
-        ESP_LOGI(TAG, "Install SSD1306 driver");
+        ESP_LOGI(TAG, "Install SH1106 driver");
         esp_lcd_panel_dev_config_t panel_config = {};
         panel_config.reset_gpio_num = GPIO_NUM_NC;
         panel_config.bits_per_pixel = 1;
 
-        esp_lcd_panel_ssd1306_config_t ssd1306_config = {
-            .height = static_cast<uint8_t>(DISPLAY_HEIGHT),
-        };
-        panel_config.vendor_config = &ssd1306_config;
-
-#ifdef SH1106
         ESP_ERROR_CHECK(esp_lcd_new_panel_sh1106(panel_io_, &panel_config, &panel_));
-#else
-        ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(panel_io_, &panel_config, &panel_));
-#endif
-        ESP_LOGI(TAG, "SSD1306 driver installed");
+        ESP_LOGI(TAG, "SH1106 driver installed");
 
         // Reset the display
         ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_));
@@ -169,7 +156,7 @@ public:
         return &led;
     }
 
-virtual AudioCodec* GetAudioCodec() override {
+    virtual AudioCodec* GetAudioCodec() override {
 #ifdef AUDIO_I2S_METHOD_SIMPLEX
         static NoAudioCodecSimplexPdm audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
             AUDIO_I2S_SPK_GPIO_BCLK, AUDIO_I2S_SPK_GPIO_LRCK, AUDIO_I2S_SPK_GPIO_DOUT, AUDIO_I2S_MIC_GPIO_SCK, AUDIO_I2S_MIC_GPIO_DIN);
@@ -178,6 +165,10 @@ virtual AudioCodec* GetAudioCodec() override {
             AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
 #endif
         return &audio_codec;
+    }
+
+    virtual Display* GetDisplay() override {
+        return display_;
     }
 };
 
