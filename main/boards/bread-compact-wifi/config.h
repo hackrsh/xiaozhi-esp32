@@ -6,17 +6,20 @@
 #define AUDIO_INPUT_SAMPLE_RATE  16000
 #define AUDIO_OUTPUT_SAMPLE_RATE 24000
 
-// 如果使用 Duplex I2S 模式，请注释下面一行
+// 保持 Simplex 模式（功放走 I2S，麦克风走 PDM）
 #define AUDIO_I2S_METHOD_SIMPLEX
 
 #ifdef AUDIO_I2S_METHOD_SIMPLEX
 
-#define AUDIO_I2S_MIC_GPIO_WS   GPIO_NUM_7
-#define AUDIO_I2S_MIC_GPIO_SCK  GPIO_NUM_5
-#define AUDIO_I2S_MIC_GPIO_DIN  GPIO_NUM_6
-#define AUDIO_I2S_SPK_GPIO_DOUT GPIO_NUM_8
-#define AUDIO_I2S_SPK_GPIO_BCLK GPIO_NUM_18
-#define AUDIO_I2S_SPK_GPIO_LRCK GPIO_NUM_17
+// 关键修改：PDM 麦克风（LMD2718）无 WS 引脚，设为 GPIO_NUM_NC 启用 PDM 采样
+#define AUDIO_I2S_MIC_GPIO_WS   GPIO_NUM_NC
+#define AUDIO_I2S_MIC_GPIO_SCK  GPIO_NUM_5   // 接模块 MIC CLK
+#define AUDIO_I2S_MIC_GPIO_DIN  GPIO_NUM_6   // 接模块 MIC DATA
+
+// 功放引脚（NS4168，保持你现有的 8/18/17 脚不变）
+#define AUDIO_I2S_SPK_GPIO_DOUT GPIO_NUM_8   // 接模块 SPK SDA
+#define AUDIO_I2S_SPK_GPIO_BCLK GPIO_NUM_18  // 接模块 SPK BCLK
+#define AUDIO_I2S_SPK_GPIO_LRCK GPIO_NUM_17  // 接模块 SPK LRCLK
 
 #else
 
@@ -51,7 +54,6 @@
 #define DISPLAY_MIRROR_X true
 #define DISPLAY_MIRROR_Y true
 
-// A MCP Test: Control a lamp (避开 GPIO 18 功放时钟)
 #define LAMP_GPIO GPIO_NUM_45
 
 #endif // _BOARD_CONFIG_H_
