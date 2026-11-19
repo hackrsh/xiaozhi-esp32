@@ -52,7 +52,7 @@ private:
         // SSD1306 config
         esp_lcd_panel_io_i2c_config_t io_config = {
             .dev_addr = 0x3C,
-            .scl_speed_hz = 400 * 1000,
+            .scl_speed_hz = 100 * 1000,
             .control_phase_bytes = 1,
             .dc_bit_offset = 6,
             .lcd_cmd_bits = 8,
